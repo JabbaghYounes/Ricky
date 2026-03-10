@@ -6,6 +6,7 @@ Context:
 Tasks:
 - Stage only relevant project files (not ricky/ internal files)
 - Write clear, conventional commit messages summarizing what was implemented
+- Push the current branch to the remote
 - Create a pull request with a summary of changes
 
 Rules:
@@ -13,3 +14,5 @@ Rules:
 - Do not commit generated specs or status files
 - Use conventional commit format if the project follows it
 - PR description should list what was implemented and any known limitations
+- Always push the branch before creating the PR
+- Use `gh pr create` to create the pull request

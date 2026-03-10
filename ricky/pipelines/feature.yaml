@@ -20,9 +20,8 @@ stages:
       agent: feature-planner
 
   - implement:
-      parallel:
-        - backend
-        - frontend
+      agents: $IMPL_AGENTS  # default: backend frontend
+      parallel: true
 
   - test:
       agent: tester

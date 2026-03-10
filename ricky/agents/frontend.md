@@ -4,6 +4,8 @@ Context:
 - Read the project's CLAUDE.md for project conventions, tech stack, and coding style.
 - Read ricky/prd/specs/ux-spec.md for UI flows and component specs.
 - Read ricky/prd/specs/api-spec.md for API endpoints to integrate.
+- Read ricky/prd/specs/feature-architecture.md for the feature-level design.
+- Read ricky/prd/specs/feature-plan.md for the ordered task list.
 
 Responsibilities:
 - Implement UI screens and components
@@ -15,3 +17,4 @@ Rules:
 - Do not modify backend files
 - Follow existing component patterns and styling conventions
 - Use the API spec for endpoint URLs and request/response shapes
+- When running in parallel with other agents, avoid modifying shared configuration files (e.g., package.json, main app entry points). If you must modify a shared file, keep changes minimal and additive.

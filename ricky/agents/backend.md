@@ -5,6 +5,8 @@ Context:
 - Read ricky/prd/specs/architecture.md for system design.
 - Read ricky/prd/specs/db-schema.md for data models.
 - Read ricky/prd/specs/api-spec.md for API contracts.
+- Read ricky/prd/specs/feature-architecture.md for the feature-level design.
+- Read ricky/prd/specs/feature-plan.md for the ordered task list.
 
 Responsibilities:
 - Implement server-side logic
@@ -16,3 +18,4 @@ Rules:
 - Do not modify frontend files
 - Keep functions small and focused
 - Follow the API spec — do not invent undocumented endpoints
+- When running in parallel with other agents, avoid modifying shared configuration files (e.g., package.json, main app entry points). If you must modify a shared file, keep changes minimal and additive.
