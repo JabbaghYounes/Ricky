@@ -14,6 +14,7 @@ BASE_BRANCH="${BASE_BRANCH:-main}"
 MAX_RETRIES="${MAX_RETRIES:-3}"
 DESIGN_AGENTS="${DESIGN_AGENTS:-system-architect db-designer api-designer ux-designer}"
 IMPL_AGENTS="${IMPL_AGENTS:-backend frontend}"
+CLAUDE_PERMISSIONS="${CLAUDE_PERMISSIONS:---dangerously-skip-permissions}"
 
 # Parse flags
 SKIP_DESIGN=false
@@ -54,6 +55,7 @@ run_agent() {
   claude \
     --system-prompt "$(cat "$RICK_DIR/agents/$AGENT.md")" \
     --print \
+    $CLAUDE_PERMISSIONS \
     "$PROMPT"
 }
 

@@ -9,6 +9,7 @@ CONF="$RICK_DIR/ricky.conf"
 [[ -f "$CONF" ]] && source "$CONF"
 
 DESIGN_AGENTS="${DESIGN_AGENTS:-system-architect db-designer api-designer ux-designer}"
+CLAUDE_PERMISSIONS="${CLAUDE_PERMISSIONS:---dangerously-skip-permissions}"
 
 # Map design agent names to spec filenames
 spec_filename() {
@@ -53,6 +54,7 @@ if [[ "$DESIGN_AGENTS" != "none" ]]; then
       claude \
         --system-prompt "$(cat "$RICK_DIR/agents/$AGENT.md")" \
         --print \
+        $CLAUDE_PERMISSIONS \
         "Design based on the PRD at $RICK_DIR/prd/prd.md" > "$SPEC_FILE"
       echo "Wrote spec: $SPEC_FILE"
     else

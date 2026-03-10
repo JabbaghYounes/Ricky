@@ -17,6 +17,8 @@ if [[ ! -f "$PRD" ]] || [[ ! -s "$PRD" ]]; then
   exit 1
 fi
 
+CLAUDE_PERMISSIONS="${CLAUDE_PERMISSIONS:---dangerously-skip-permissions}"
+
 command -v claude >/dev/null || { echo "Error: claude CLI not found" >&2; exit 1; }
 
 # Clean previous features
@@ -30,6 +32,7 @@ echo "Extracting features from PRD..."
 RAW=$(claude \
   --system-prompt "$(cat "$RICK_DIR/agents/product-manager.md")" \
   --print \
+  $CLAUDE_PERMISSIONS \
   "Read the following PRD and extract features.
 
 $(cat "$PRD")")

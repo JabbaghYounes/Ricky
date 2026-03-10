@@ -80,6 +80,10 @@ DESIGN_AGENTS="system-architect db-designer api-designer ux-designer"
 # Implementation agents to run in parallel (default: backend frontend)
 # For backend-only projects, set to "backend"
 IMPL_AGENTS="backend frontend"
+
+# Claude CLI permission mode (required for agents to use tools)
+# Without this, --print mode is text-only and agents can't modify files
+CLAUDE_PERMISSIONS="--dangerously-skip-permissions"
 ```
 
 ## Scripts
