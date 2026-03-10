@@ -14,10 +14,7 @@ stages:
         - ux-designer
 
   - architect:
-      agent: architect
-
-  - plan:
-      agent: feature-planner
+      agent: architect  # includes planning (architecture + task breakdown)
 
   - implement:
       agents: $IMPL_AGENTS  # default: backend frontend

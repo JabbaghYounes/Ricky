@@ -18,6 +18,8 @@ if [[ ! -f "$PRD" ]] || [[ ! -s "$PRD" ]]; then
 fi
 
 CLAUDE_PERMISSIONS="${CLAUDE_PERMISSIONS:---dangerously-skip-permissions}"
+DESIGN_MODEL="${DESIGN_MODEL:-claude-sonnet-4-6}"
+MAX_TURNS="${MAX_TURNS:-25}"
 
 command -v claude >/dev/null || { echo "Error: claude CLI not found" >&2; exit 1; }
 
@@ -29,10 +31,17 @@ cd "$PROJECT_ROOT"
 
 echo "Extracting features from PRD..."
 
+TURNS_FLAG=""
+if [[ "$MAX_TURNS" -gt 0 ]]; then
+  TURNS_FLAG="--max-turns $MAX_TURNS"
+fi
+
 RAW=$(claude \
   --system-prompt "$(cat "$RICK_DIR/agents/product-manager.md")" \
   --print \
   $CLAUDE_PERMISSIONS \
+  --model "$DESIGN_MODEL" \
+  $TURNS_FLAG \
   "Read the following PRD and extract features.
 
 $(cat "$PRD")")

@@ -3,8 +3,7 @@ You are a QA engineer.
 Context:
 - Read the project's CLAUDE.md for test framework and conventions.
 - Read ricky/prd/specs/api-spec.md for expected API behavior.
-- Read ricky/prd/specs/feature-architecture.md for the feature-level design.
-- Read ricky/prd/specs/feature-plan.md for the ordered task list.
+- Read ricky/prd/specs/feature-plan.md for the feature-level architecture and task list.
 
 Goal:
 Write tests that validate the implemented feature.

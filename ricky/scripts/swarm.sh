@@ -15,6 +15,9 @@ MAX_RETRIES="${MAX_RETRIES:-3}"
 DESIGN_AGENTS="${DESIGN_AGENTS:-system-architect db-designer api-designer ux-designer}"
 IMPL_AGENTS="${IMPL_AGENTS:-backend frontend}"
 CLAUDE_PERMISSIONS="${CLAUDE_PERMISSIONS:---dangerously-skip-permissions}"
+DESIGN_MODEL="${DESIGN_MODEL:-claude-sonnet-4-6}"
+IMPL_MODEL="${IMPL_MODEL:-claude-sonnet-4-6}"
+MAX_TURNS="${MAX_TURNS:-25}"
 
 # Parse flags
 SKIP_DESIGN=false
@@ -48,14 +51,24 @@ spec_filename() {
   esac
 }
 
+# Build claude flags for a given model
+claude_flags() {
+  local model=$1
+  local flags="--print $CLAUDE_PERMISSIONS --model $model"
+  if [[ "$MAX_TURNS" -gt 0 ]]; then
+    flags="$flags --max-turns $MAX_TURNS"
+  fi
+  echo "$flags"
+}
+
 run_agent() {
   local AGENT=$1
   local PROMPT=$2
-  echo "--- Running agent: $AGENT ---" >&2
+  local MODEL=${3:-$IMPL_MODEL}
+  echo "--- Running agent: $AGENT (model: $MODEL) ---" >&2
   claude \
     --system-prompt "$(cat "$RICK_DIR/agents/$AGENT.md")" \
-    --print \
-    $CLAUDE_PERMISSIONS \
+    $(claude_flags "$MODEL") \
     "$PROMPT"
 }
 
@@ -86,7 +99,7 @@ if [[ "$SKIP_DESIGN" == false && "$DESIGN_AGENTS" != "none" ]]; then
   for AGENT in $DESIGN_AGENTS; do
     if [[ -f "$RICK_DIR/agents/$AGENT.md" ]]; then
       SPEC_FILE="$SPECS_DIR/$(spec_filename "$AGENT")"
-      run_agent "$AGENT" "Design for: $TASK" > "$SPEC_FILE"
+      run_agent "$AGENT" "Design for: $TASK" "$DESIGN_MODEL" > "$SPEC_FILE"
       echo "Wrote spec: $SPEC_FILE"
     else
       echo "Warning: agent $AGENT not found, skipping" >&2
@@ -103,36 +116,23 @@ if [[ "$SKIP_DESIGN" == true ]]; then
   fi
 fi
 
-# Feature architecture (save output for downstream agents)
-echo "=== Architecture phase ==="
+# Feature architecture + planning (merged into one agent call)
+echo "=== Architecture & Planning phase ==="
 SPECS_DIR="$RICK_DIR/prd/specs"
 mkdir -p "$SPECS_DIR"
-FEATURE_ARCH_FILE="$SPECS_DIR/feature-architecture.md"
-run_agent architect "$TASK" > "$FEATURE_ARCH_FILE"
-echo "Wrote feature architecture: $FEATURE_ARCH_FILE"
-
-# Feature planning (save output for downstream agents)
-echo "=== Planning phase ==="
 FEATURE_PLAN_FILE="$SPECS_DIR/feature-plan.md"
-run_agent feature-planner "$TASK" > "$FEATURE_PLAN_FILE"
+run_agent architect "$TASK" "$DESIGN_MODEL" > "$FEATURE_PLAN_FILE"
 echo "Wrote feature plan: $FEATURE_PLAN_FILE"
 
 # Build context for downstream agents
-ARCH_CONTEXT=""
 PLAN_CONTEXT=""
-if [[ -f "$FEATURE_ARCH_FILE" ]]; then
-  ARCH_CONTEXT=$(cat "$FEATURE_ARCH_FILE")
-fi
 if [[ -f "$FEATURE_PLAN_FILE" ]]; then
   PLAN_CONTEXT=$(cat "$FEATURE_PLAN_FILE")
 fi
 
 IMPL_PROMPT="Implement this feature: $TASK
 
-## Feature Architecture
-$ARCH_CONTEXT
-
-## Implementation Plan
+## Feature Architecture & Plan
 $PLAN_CONTEXT"
 
 # Implementation (parallel if multiple agents)
@@ -140,7 +140,7 @@ echo "=== Implementation phase ==="
 IMPL_PIDS=()
 for AGENT in $IMPL_AGENTS; do
   if [[ -f "$RICK_DIR/agents/$AGENT.md" ]]; then
-    run_agent "$AGENT" "$IMPL_PROMPT" &
+    run_agent "$AGENT" "$IMPL_PROMPT" "$IMPL_MODEL" &
     IMPL_PIDS+=($!)
   else
     echo "Warning: agent $AGENT not found, skipping" >&2
@@ -160,12 +160,9 @@ fi
 echo "=== Test phase ==="
 TESTER_PROMPT="Write tests for this feature: $TASK
 
-## Feature Architecture
-$ARCH_CONTEXT
-
-## Implementation Plan
+## Feature Architecture & Plan
 $PLAN_CONTEXT"
-run_agent tester "$TESTER_PROMPT"
+run_agent tester "$TESTER_PROMPT" "$IMPL_MODEL"
 
 # Run tests with retry loop
 echo "=== Running tests ==="
@@ -191,7 +188,7 @@ while true; do
 $TEST_CMD
 
 ## Test Output
-$TEST_OUTPUT"
+$TEST_OUTPUT" "$IMPL_MODEL"
 done
 
 # Commit and PR via versioncontroller agent
@@ -202,6 +199,6 @@ run_agent versioncontroller "Commit and create a PR for: $TASK
 - Current branch: $BRANCH
 - Base branch: $BASE_BRANCH
 - Push this branch to origin before creating the PR
-- Create the PR against $BASE_BRANCH using: gh pr create --base $BASE_BRANCH"
+- Create the PR against $BASE_BRANCH using: gh pr create --base $BASE_BRANCH" "$DESIGN_MODEL"
 
 echo "=== Swarm complete ==="

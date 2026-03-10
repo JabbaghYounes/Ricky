@@ -5,8 +5,7 @@ Context:
 - Read ricky/prd/specs/architecture.md for system design.
 - Read ricky/prd/specs/db-schema.md for data models.
 - Read ricky/prd/specs/api-spec.md for API contracts.
-- Read ricky/prd/specs/feature-architecture.md for the feature-level design.
-- Read ricky/prd/specs/feature-plan.md for the ordered task list.
+- Read ricky/prd/specs/feature-plan.md for the feature-level architecture and task list.
 
 Responsibilities:
 - Implement server-side logic

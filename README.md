@@ -35,7 +35,7 @@ PRD
  → Product Manager (extract features)
  → Design Phase (architecture, DB, API, UX specs)
  → Per-Feature Swarms
-    → Architect → Feature Planner → Implementation agents (parallel) → Tester → Debugger (retry loop)
+    → Architect (includes planning) → Implementation agents (parallel) → Tester → Debugger (retry loop)
  → Git PR per feature
 ```
 
@@ -84,6 +84,15 @@ IMPL_AGENTS="backend frontend"
 # Claude CLI permission mode (required for agents to use tools)
 # Without this, --print mode is text-only and agents can't modify files
 CLAUDE_PERMISSIONS="--dangerously-skip-permissions"
+
+# Model for planning/design stages (cheaper, saves tokens)
+DESIGN_MODEL="claude-sonnet-4-6"
+
+# Model for implementation stages (use opus for complex projects)
+IMPL_MODEL="claude-sonnet-4-6"
+
+# Max tool-use turns per agent (limits token consumption, 0 = unlimited)
+MAX_TURNS=25
 ```
 
 ## Scripts
@@ -91,7 +100,7 @@ CLAUDE_PERMISSIONS="--dangerously-skip-permissions"
 | Script | What it does |
 |---|---|
 | `run-product.sh` | Full pipeline: extract features, run design phase, run all feature swarms |
-| `swarm.sh "<task>"` | Single feature swarm: design → architect → planner → build → test → debug → PR |
+| `swarm.sh "<task>"` | Single feature swarm: design → architect → build → test → debug → PR |
 | `swarm.sh --skip-design "<task>"` | Single feature swarm without design phase (used by run-product.sh) |
 | `prd-extract.sh` | Extract features from PRD into individual files |
 | `prd-swarm.sh` | Run swarm for each extracted feature file |
@@ -102,8 +111,7 @@ CLAUDE_PERMISSIONS="--dangerously-skip-permissions"
 |---|---|
 | product-manager | Analyzes PRD, extracts feature list |
 | system-architect | Designs system-level architecture from PRD |
-| architect | Designs feature-level implementation |
-| feature-planner | Converts features into engineering tasks |
+| architect | Designs feature-level implementation and task breakdown |
 | roadmap | Breaks PRD into milestones |
 | db-designer | Generates database schema |
 | api-designer | Defines REST/GraphQL API spec |

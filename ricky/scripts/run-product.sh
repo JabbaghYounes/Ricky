@@ -10,6 +10,8 @@ CONF="$RICK_DIR/ricky.conf"
 
 DESIGN_AGENTS="${DESIGN_AGENTS:-system-architect db-designer api-designer ux-designer}"
 CLAUDE_PERMISSIONS="${CLAUDE_PERMISSIONS:---dangerously-skip-permissions}"
+DESIGN_MODEL="${DESIGN_MODEL:-claude-sonnet-4-6}"
+MAX_TURNS="${MAX_TURNS:-25}"
 
 # Map design agent names to spec filenames
 spec_filename() {
@@ -51,10 +53,16 @@ if [[ "$DESIGN_AGENTS" != "none" ]]; then
     if [[ -f "$RICK_DIR/agents/$AGENT.md" ]]; then
       SPEC_FILE="$SPECS_DIR/$(spec_filename "$AGENT")"
       echo "Running design agent: $AGENT"
+      TURNS_FLAG=""
+      if [[ "$MAX_TURNS" -gt 0 ]]; then
+        TURNS_FLAG="--max-turns $MAX_TURNS"
+      fi
       claude \
         --system-prompt "$(cat "$RICK_DIR/agents/$AGENT.md")" \
         --print \
         $CLAUDE_PERMISSIONS \
+        --model "$DESIGN_MODEL" \
+        $TURNS_FLAG \
         "Design based on the PRD at $RICK_DIR/prd/prd.md" > "$SPEC_FILE"
       echo "Wrote spec: $SPEC_FILE"
     else
