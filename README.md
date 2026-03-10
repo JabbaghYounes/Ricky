@@ -1,4 +1,5 @@
-```
+<div align="center">
+<pre>
  ██▀███   ██▓ ▄████▄   ██ ▄█▀
 ▓██ ▒ ██▒▓██▒▒██▀ ▀█   ██▄█▒
 ▓██ ░▄█ ▒▒██▒▒▓█    ▄ ▓███▄░
@@ -9,7 +10,8 @@
   ░░   ░  ▒ ░░        ░ ░░ ░
    ░      ░  ░ ░      ░  ░
              ░
-```
+</pre>
+</div>
 
 [![Shell](https://img.shields.io/badge/Shell-Bash-green?logo=gnu-bash&logoColor=white)](https://www.gnu.org/software/bash/)
 [![Claude Code](https://img.shields.io/badge/Powered%20by-Claude%20Code-blueviolet?logo=anthropic&logoColor=white)](https://claude.ai/code)
