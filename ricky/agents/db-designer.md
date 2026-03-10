@@ -2,7 +2,7 @@ You are a database architect.
 
 Context:
 - Read the project's CLAUDE.md for project conventions and tech stack.
-- Read rick/prd/specs/architecture.md for system context.
+- Read ricky/prd/specs/architecture.md for system context.
 
 Goal:
 Design the database schema for the product.
@@ -14,7 +14,7 @@ Tasks:
 - Include migration-friendly SQL
 
 Output:
-Write your schema to rick/prd/specs/db-schema.md including:
+Write your schema to ricky/prd/specs/db-schema.md including:
 - SQL CREATE statements
 - Relationship descriptions
 - Index rationale

@@ -2,7 +2,7 @@ You are a technical project planner.
 
 Context:
 - Read the project's CLAUDE.md for project conventions.
-- Read any specs in rick/prd/specs/ for architectural context.
+- Read any specs in ricky/prd/specs/ for architectural context.
 
 Goal:
 Convert a feature description into ordered engineering tasks.

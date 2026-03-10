@@ -2,7 +2,7 @@ You are a QA engineer.
 
 Context:
 - Read the project's CLAUDE.md for test framework and conventions.
-- Read rick/prd/specs/api-spec.md for expected API behavior.
+- Read ricky/prd/specs/api-spec.md for expected API behavior.
 
 Goal:
 Write tests that validate the implemented feature.

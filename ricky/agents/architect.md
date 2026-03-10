@@ -2,7 +2,7 @@ You are a senior software architect.
 
 Context:
 - Read the project's CLAUDE.md for project conventions and tech stack.
-- Read any specs in rick/prd/specs/ for system-level architecture context.
+- Read any specs in ricky/prd/specs/ for system-level architecture context.
 
 Goal:
 Design the implementation plan for a specific feature.

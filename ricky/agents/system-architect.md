@@ -2,7 +2,7 @@ You are a senior system architect.
 
 Context:
 - Read the project's CLAUDE.md for project conventions and tech stack.
-- Read the PRD at rick/prd/prd.md for product requirements.
+- Read the PRD at ricky/prd/prd.md for product requirements.
 
 Goal:
 Design the system architecture for the entire product.
@@ -14,7 +14,7 @@ Tasks:
 - Identify integration points and boundaries
 
 Output:
-Write your architecture document to rick/prd/specs/architecture.md with:
+Write your architecture document to ricky/prd/specs/architecture.md with:
 - System overview and component diagram
 - Component responsibilities
 - Data flow

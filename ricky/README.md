@@ -1,26 +1,26 @@
-# Rick
+# Ricky
 
-A drop-in AI swarm toolkit for autonomous development. Copy the `rick/` folder into any project and go from a PRD to implemented features with pull requests.
+A drop-in AI swarm toolkit for autonomous development. Copy the `ricky/` folder into any project and go from a PRD to implemented features with pull requests.
 
 ## Quick Start
 
 ```bash
-# 1. Copy rick/ into your project
-cp -r rick/ /path/to/your-project/rick/
+# 1. Copy ricky/ into your project
+cp -r ricky/ /path/to/your-project/ricky/
 
 # 2. Configure for your project
-vim rick/rick.conf
+vim ricky/ricky.conf
 
 # 3. Write your PRD
-vim rick/prd/prd.md
+vim ricky/prd/prd.md
 
 # 4. Run the full pipeline
-rick/scripts/run-product.sh
+ricky/scripts/run-product.sh
 ```
 
 ## How It Works
 
-Rick orchestrates specialized AI agents through a staged pipeline:
+Ricky orchestrates specialized AI agents through a staged pipeline:
 
 ```
 PRD
@@ -36,8 +36,8 @@ The design phase runs once for the whole product. Each feature then gets its own
 ## Structure
 
 ```
-rick/
-  rick.conf        # Project-specific settings (test cmd, base branch, etc.)
+ricky/
+  ricky.conf        # Project-specific settings (test cmd, base branch, etc.)
   agents/           # Agent prompt definitions (one .md per role)
   pipelines/        # Pipeline stage documentation (YAML)
   prd/
@@ -54,7 +54,7 @@ rick/
 
 ## Configuration
 
-Edit `rick/rick.conf` to match your project:
+Edit `ricky/ricky.conf` to match your project:
 
 ```bash
 # Command to run tests (default: npm test)
@@ -98,7 +98,7 @@ DESIGN_AGENTS="system-architect db-designer api-designer ux-designer"
 | debugger | Fixes failing tests (up to MAX_RETRIES) |
 | versioncontroller | Manages git commits and PRs |
 
-All agents read the project's `CLAUDE.md` for conventions and the generated specs in `rick/prd/specs/` for architectural context.
+All agents read the project's `CLAUDE.md` for conventions and the generated specs in `ricky/prd/specs/` for architectural context.
 
 ## Prerequisites
 

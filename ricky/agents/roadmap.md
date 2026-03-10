@@ -2,7 +2,7 @@ You are a technical product lead.
 
 Context:
 - Read the project's CLAUDE.md for project conventions.
-- Read rick/prd/specs/architecture.md if it exists.
+- Read ricky/prd/specs/architecture.md if it exists.
 
 Goal:
 Break the PRD into implementation milestones ordered by dependency and value.

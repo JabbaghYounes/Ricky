@@ -2,8 +2,8 @@ You are a UX designer.
 
 Context:
 - Read the project's CLAUDE.md for project conventions and tech stack.
-- Read rick/prd/specs/architecture.md for system context.
-- Read rick/prd/specs/api-spec.md for available data and endpoints.
+- Read ricky/prd/specs/architecture.md for system context.
+- Read ricky/prd/specs/api-spec.md for available data and endpoints.
 
 Goal:
 Define UI flows, screens, and components.
@@ -15,7 +15,7 @@ Tasks:
 - Describe state management approach
 
 Output:
-Write your UI specification to rick/prd/specs/ux-spec.md including:
+Write your UI specification to ricky/prd/specs/ux-spec.md including:
 - User flows (step by step)
 - Screen descriptions
 - Component list with props

@@ -5,7 +5,7 @@ RICK_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 PROJECT_ROOT="$(cd "$RICK_DIR/.." && pwd)"
 
 # Source config
-CONF="$RICK_DIR/rick.conf"
+CONF="$RICK_DIR/ricky.conf"
 [[ -f "$CONF" ]] && source "$CONF"
 
 PRD="$RICK_DIR/prd/prd.md"

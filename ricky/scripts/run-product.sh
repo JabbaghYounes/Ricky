@@ -5,14 +5,14 @@ RICK_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 PROJECT_ROOT="$(cd "$RICK_DIR/.." && pwd)"
 
 # Source config
-CONF="$RICK_DIR/rick.conf"
+CONF="$RICK_DIR/ricky.conf"
 [[ -f "$CONF" ]] && source "$CONF"
 
 DESIGN_AGENTS="${DESIGN_AGENTS:-system-architect db-designer api-designer ux-designer}"
 
 # Validate
 if [[ ! -f "$RICK_DIR/prd/prd.md" ]] || [[ ! -s "$RICK_DIR/prd/prd.md" ]]; then
-  echo "Error: No PRD found at rick/prd/prd.md" >&2
+  echo "Error: No PRD found at ricky/prd/prd.md" >&2
   exit 1
 fi
 
