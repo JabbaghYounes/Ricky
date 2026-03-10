@@ -1,0 +1,35 @@
+# This file documents the pipeline stages.
+# The actual execution logic is in scripts/swarm.sh.
+# Keep this in sync with swarm.sh when modifying the pipeline.
+
+name: feature-development
+
+stages:
+
+  - design:
+      agents:
+        - system-architect
+        - db-designer
+        - api-designer
+        - ux-designer
+
+  - architect:
+      agent: architect
+
+  - plan:
+      agent: feature-planner
+
+  - implement:
+      parallel:
+        - backend
+        - frontend
+
+  - test:
+      agent: tester
+
+  - debug:
+      agent: debugger
+      retries: 3
+
+  - commit:
+      agent: versioncontroller
