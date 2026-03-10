@@ -1,4 +1,21 @@
-# Rick
+```
+ ██▀███   ██▓ ▄████▄   ██ ▄█▀
+▓██ ▒ ██▒▓██▒▒██▀ ▀█   ██▄█▒
+▓██ ░▄█ ▒▒██▒▒▓█    ▄ ▓███▄░
+▒██▀▀█▄  ░██░▒▓▓▄ ▄██▒▓██ █▄
+░██▓ ▒██▒░██░▒ ▓███▀ ░▒██▒ █▄
+░ ▒▓ ░▒▓░░▓  ░ ░▒ ▒  ░▒ ▒▒ ▓▒
+  ░▒ ░ ▒░ ▒ ░  ░  ▒   ░ ░▒ ▒░
+  ░░   ░  ▒ ░░        ░ ░░ ░
+   ░      ░  ░ ░      ░  ░
+             ░
+```
+
+[![Shell](https://img.shields.io/badge/Shell-Bash-green?logo=gnu-bash&logoColor=white)](https://www.gnu.org/software/bash/)
+[![Claude Code](https://img.shields.io/badge/Powered%20by-Claude%20Code-blueviolet?logo=anthropic&logoColor=white)](https://claude.ai/code)
+[![GitHub CLI](https://img.shields.io/badge/Uses-GitHub%20CLI-blue?logo=github&logoColor=white)](https://cli.github.com/)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/JabbaghYounes/Rick/pulls)
+[![GitHub stars](https://img.shields.io/github/stars/JabbaghYounes/Rick?style=social)](https://github.com/JabbaghYounes/Rick)
 
 A drop-in AI swarm toolkit for autonomous development. Copy the `rick/` folder into any project and go from a PRD to implemented features with pull requests.
 
