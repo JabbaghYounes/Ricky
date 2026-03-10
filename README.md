@@ -35,7 +35,7 @@ PRD
  → Product Manager (extract features)
  → Design Phase (architecture, DB, API, UX specs)
  → Per-Feature Swarms
-    → Architect → Backend + Frontend (parallel) → Tester → Debugger (retry loop)
+    → Architect → Feature Planner → Implementation agents (parallel) → Tester → Debugger (retry loop)
  → Git PR per feature
 ```
 
@@ -51,8 +51,8 @@ ricky/
   prd/
     prd.md          # Your product requirements (edit this)
     features/       # Auto-generated feature files (one per feature)
-    specs/          # Auto-generated design specs (architecture, DB, API, UX)
-    status.json     # Feature progress tracking
+    specs/          # Auto-generated specs (design + per-feature architecture/plan)
+    status.json     # Feature progress tracking (supports resume on re-run)
   scripts/
     run-product.sh  # Full pipeline: PRD → design → features → PRs
     swarm.sh        # Run a single feature swarm
@@ -91,7 +91,7 @@ CLAUDE_PERMISSIONS="--dangerously-skip-permissions"
 | Script | What it does |
 |---|---|
 | `run-product.sh` | Full pipeline: extract features, run design phase, run all feature swarms |
-| `swarm.sh "<task>"` | Single feature swarm: design → architect → build → test → debug → PR |
+| `swarm.sh "<task>"` | Single feature swarm: design → architect → planner → build → test → debug → PR |
 | `swarm.sh --skip-design "<task>"` | Single feature swarm without design phase (used by run-product.sh) |
 | `prd-extract.sh` | Extract features from PRD into individual files |
 | `prd-swarm.sh` | Run swarm for each extracted feature file |
