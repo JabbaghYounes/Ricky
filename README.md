@@ -17,10 +17,10 @@ A drop-in AI swarm toolkit for autonomous development. Copy the `ricky/` folder 
 cp -r ricky/ /path/to/your-project/ricky/
 
 # 2. Configure for your project
-vim ricky/ricky.conf
+nvim ricky/ricky.conf
 
 # 3. Write your PRD
-vim ricky/prd/prd.md
+nvim ricky/prd/prd.md
 
 # 4. Run the full pipeline
 ricky/scripts/run-product.sh
