@@ -10,12 +10,26 @@ if ! ls "$FEATURES_DIR"/*.md >/dev/null 2>&1; then
   exit 1
 fi
 
-# Collect feature names and initialize statuses
+# Read existing status if available (enables resume after failure)
+read_existing_status() {
+  local name=$1
+  if [[ -f "$STATUS_FILE" ]]; then
+    # Extract status for this feature using grep/sed (no jq dependency)
+    local status
+    status=$(grep "\"$name\"" "$STATUS_FILE" 2>/dev/null | sed 's/.*: *"\([^"]*\)".*/\1/' || true)
+    echo "${status:-pending}"
+  else
+    echo "pending"
+  fi
+}
+
+# Collect feature names and load statuses (resume-aware)
 FEATURE_NAMES=()
 FEATURE_STATUSES=()
 for FEATURE in "$FEATURES_DIR"/*.md; do
-  FEATURE_NAMES+=("$(basename "$FEATURE" .md)")
-  FEATURE_STATUSES+=("pending")
+  FNAME="$(basename "$FEATURE" .md)"
+  FEATURE_NAMES+=("$FNAME")
+  FEATURE_STATUSES+=("$(read_existing_status "$FNAME")")
 done
 
 # Write status.json from arrays
@@ -36,9 +50,17 @@ write_status() {
 
 write_status
 
+HAS_FAILURE=false
+
 for i in "${!FEATURE_NAMES[@]}"; do
   FNAME="${FEATURE_NAMES[$i]}"
   FEATURE="$FEATURES_DIR/$FNAME.md"
+
+  # Skip features already completed in a previous run
+  if [[ "${FEATURE_STATUSES[$i]}" == "complete" ]]; then
+    echo "=== Skipping (already complete): $FNAME ==="
+    continue
+  fi
 
   echo "=== Running swarm for: $FNAME ==="
   FEATURE_STATUSES[$i]="in-progress"
@@ -49,7 +71,13 @@ for i in "${!FEATURE_NAMES[@]}"; do
     echo "=== Completed: $FNAME ==="
   else
     FEATURE_STATUSES[$i]="failed"
+    HAS_FAILURE=true
     echo "=== Failed: $FNAME ===" >&2
   fi
   write_status
 done
+
+if [[ "$HAS_FAILURE" == true ]]; then
+  echo "ERROR: One or more features failed. See $STATUS_FILE for details." >&2
+  exit 1
+fi

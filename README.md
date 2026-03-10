@@ -76,6 +76,10 @@ MAX_RETRIES=3
 
 # Design agents to run (space-separated, or "none" to skip)
 DESIGN_AGENTS="system-architect db-designer api-designer ux-designer"
+
+# Implementation agents to run in parallel (default: backend frontend)
+# For backend-only projects, set to "backend"
+IMPL_AGENTS="backend frontend"
 ```
 
 ## Scripts
