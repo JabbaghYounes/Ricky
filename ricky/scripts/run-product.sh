@@ -10,6 +10,17 @@ CONF="$RICK_DIR/ricky.conf"
 
 DESIGN_AGENTS="${DESIGN_AGENTS:-system-architect db-designer api-designer ux-designer}"
 
+# Map design agent names to spec filenames
+spec_filename() {
+  case "$1" in
+    system-architect) echo "architecture.md" ;;
+    db-designer)      echo "db-schema.md" ;;
+    api-designer)     echo "api-spec.md" ;;
+    ux-designer)      echo "ux-spec.md" ;;
+    *)                echo "$1.md" ;;
+  esac
+}
+
 # Validate
 if [[ ! -f "$RICK_DIR/prd/prd.md" ]] || [[ ! -s "$RICK_DIR/prd/prd.md" ]]; then
   echo "Error: No PRD found at ricky/prd/prd.md" >&2
@@ -19,7 +30,7 @@ fi
 command -v claude >/dev/null || { echo "Error: claude CLI not found" >&2; exit 1; }
 
 echo "=========================================="
-echo " RICK: Full product pipeline"
+echo " RICKY: Full product pipeline"
 echo "=========================================="
 
 # Step 1: Extract features from PRD
@@ -37,11 +48,13 @@ if [[ "$DESIGN_AGENTS" != "none" ]]; then
 
   for AGENT in $DESIGN_AGENTS; do
     if [[ -f "$RICK_DIR/agents/$AGENT.md" ]]; then
+      SPEC_FILE="$SPECS_DIR/$(spec_filename "$AGENT")"
       echo "Running design agent: $AGENT"
       claude \
         --system-prompt "$(cat "$RICK_DIR/agents/$AGENT.md")" \
         --print \
-        "Design based on the PRD at $RICK_DIR/prd/prd.md"
+        "Design based on the PRD at $RICK_DIR/prd/prd.md" > "$SPEC_FILE"
+      echo "Wrote spec: $SPEC_FILE"
     else
       echo "Warning: agent $AGENT not found, skipping" >&2
     fi
@@ -55,5 +68,5 @@ echo "--- Step 3: Running feature swarms ---"
 
 echo ""
 echo "=========================================="
-echo " RICK: Pipeline complete"
+echo " RICKY: Pipeline complete"
 echo "=========================================="

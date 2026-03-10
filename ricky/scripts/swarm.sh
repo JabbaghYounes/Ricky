@@ -35,10 +35,21 @@ cd "$PROJECT_ROOT"
 
 git rev-parse --is-inside-work-tree >/dev/null 2>&1 || { echo "Error: not a git repo" >&2; exit 1; }
 
+# Map design agent names to spec filenames
+spec_filename() {
+  case "$1" in
+    system-architect) echo "architecture.md" ;;
+    db-designer)      echo "db-schema.md" ;;
+    api-designer)     echo "api-spec.md" ;;
+    ux-designer)      echo "ux-spec.md" ;;
+    *)                echo "$1.md" ;;
+  esac
+}
+
 run_agent() {
   local AGENT=$1
   local PROMPT=$2
-  echo "--- Running agent: $AGENT ---"
+  echo "--- Running agent: $AGENT ---" >&2
   claude \
     --system-prompt "$(cat "$RICK_DIR/agents/$AGENT.md")" \
     --print \
@@ -49,6 +60,15 @@ run_agent() {
 BRANCH="ai-feature-$(date +%s)"
 git checkout -b "$BRANCH" "$BASE_BRANCH"
 
+# Cleanup guidance on failure
+cleanup() {
+  if [[ $? -ne 0 ]]; then
+    echo "Swarm failed on branch '$BRANCH'." >&2
+    echo "To return to base branch: git checkout $BASE_BRANCH" >&2
+  fi
+}
+trap cleanup EXIT
+
 # Design phase
 if [[ "$SKIP_DESIGN" == false && "$DESIGN_AGENTS" != "none" ]]; then
   SPECS_DIR="$RICK_DIR/prd/specs"
@@ -57,7 +77,9 @@ if [[ "$SKIP_DESIGN" == false && "$DESIGN_AGENTS" != "none" ]]; then
   echo "=== Design phase ==="
   for AGENT in $DESIGN_AGENTS; do
     if [[ -f "$RICK_DIR/agents/$AGENT.md" ]]; then
-      run_agent "$AGENT" "Design for: $TASK"
+      SPEC_FILE="$SPECS_DIR/$(spec_filename "$AGENT")"
+      run_agent "$AGENT" "Design for: $TASK" > "$SPEC_FILE"
+      echo "Wrote spec: $SPEC_FILE"
     else
       echo "Warning: agent $AGENT not found, skipping" >&2
     fi
@@ -68,11 +90,24 @@ fi
 echo "=== Architecture phase ==="
 run_agent architect "$TASK"
 
+# Feature planning
+echo "=== Planning phase ==="
+run_agent feature-planner "$TASK"
+
 # Implementation (parallel)
 echo "=== Implementation phase ==="
 run_agent backend "$TASK" &
+PID_BACKEND=$!
 run_agent frontend "$TASK" &
-wait
+PID_FRONTEND=$!
+
+IMPL_FAIL=0
+wait $PID_BACKEND || IMPL_FAIL=1
+wait $PID_FRONTEND || IMPL_FAIL=1
+if [[ $IMPL_FAIL -ne 0 ]]; then
+  echo "ERROR: Implementation agents failed." >&2
+  exit 1
+fi
 
 # Testing
 echo "=== Test phase ==="
@@ -97,13 +132,8 @@ while true; do
   run_agent debugger "Fix failing tests. Attempt $RETRY of $MAX_RETRIES."
 done
 
-# Commit and PR
+# Commit and PR via versioncontroller agent
 echo "=== Commit phase ==="
-git add .
-git commit -m "feat: $TASK"
-
-gh pr create \
-  --title "Feature: $TASK" \
-  --body "Generated from PRD by rick"
+run_agent versioncontroller "Commit and create a PR for: $TASK"
 
 echo "=== Swarm complete ==="
