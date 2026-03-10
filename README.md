@@ -1,5 +1,5 @@
 <div align="center">
-<img src="ascii-art.png" alt="Rick" width="400">
+<img src="ricky-ascii.png" alt="Ricky" width="500">
 </div>
 
 [![Shell](https://img.shields.io/badge/Shell-Bash-green?logo=gnu-bash&logoColor=white)](https://www.gnu.org/software/bash/)
