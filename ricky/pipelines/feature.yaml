@@ -25,7 +25,18 @@ stages:
 
   - debug:
       agent: debugger
-      retries: 3
+      retries: $MAX_RETRIES
+
+  - review:
+      agent: reviewer
+      optional: true  # controlled by ENABLE_REVIEW config
+      model: $DESIGN_MODEL
 
   - commit:
       agent: versioncontroller
+
+features:
+  logging: Agent output saved to ricky/prd/logs/run-<timestamp>/
+  granular_resume: Stage-level progress in ricky/prd/status/<slug>.status
+  parallel: MAX_PARALLEL > 1 uses git worktrees for concurrent feature swarms
+  cost_tracking: Token usage logged to cost.csv, viewable via cost-report.sh

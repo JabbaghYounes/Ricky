@@ -35,30 +35,42 @@ PRD
  → Product Manager (extract features)
  → Design Phase (architecture, DB, API, UX specs)
  → Per-Feature Swarms
-    → Architect (includes planning) → Implementation agents (parallel) → Tester → Debugger (retry loop)
+    → Architect → Implementation (parallel) → Tester → Debugger (retry) → Review (optional) → PR
  → Git PR per feature
 ```
 
 The design phase runs once for the whole product. Each feature then gets its own branch (`ai-feature-<timestamp>`) and pull request.
 
+## Features
+
+- **Agent output logging** — Every agent call is saved to `ricky/prd/logs/run-<timestamp>/` for full audit trails
+- **Parallel feature swarms** — Set `MAX_PARALLEL` > 1 to build multiple features concurrently using git worktrees
+- **Granular resume** — Stage-level progress tracking. If a feature fails at the test stage, resume picks up there instead of restarting
+- **Cost/token tracking** — Token usage logged per agent call. Run `cost-report.sh` for a breakdown by agent, feature, and estimated cost
+- **Rate-limit auto-pause** — Detects API rate limits and auto-pauses/resumes. No manual intervention needed
+- **PR review agent** — Optional self-review stage catches issues before PR creation (`ENABLE_REVIEW=true`)
+
 ## Structure
 
 ```
 ricky/
-  ricky.conf        # Project-specific settings (test cmd, base branch, etc.)
-  agents/           # Agent prompt definitions (one .md per role)
-  pipelines/        # Pipeline stage documentation (YAML)
+  ricky.conf          # Project-specific settings (test cmd, base branch, etc.)
+  agents/             # Agent prompt definitions (one .md per role)
+  pipelines/          # Pipeline stage documentation (YAML)
   prd/
-    prd.md          # Your product requirements (edit this)
-    features/       # Auto-generated feature files (one per feature)
-    specs/          # Auto-generated specs (design + per-feature architecture/plan)
-    status.json     # Feature progress tracking (supports resume on re-run)
+    prd.md            # Your product requirements (edit this)
+    features/         # Auto-generated feature files (one per feature)
+    specs/            # Auto-generated specs (design + per-feature architecture/plan)
+    status/           # Per-feature stage-level progress (resume support)
+    status.json       # Summary status (backward compatible)
+    logs/             # Agent output logs and cost tracking (per run)
   scripts/
-    lib.sh          # Shared functions (rate-limit retry, etc.)
-    run-product.sh  # Full pipeline: PRD → design → features → PRs
-    swarm.sh        # Run a single feature swarm
-    prd-extract.sh  # Extract features from PRD
-    prd-swarm.sh    # Run swarm for all extracted features
+    lib.sh            # Shared functions (logging, rate-limit, status tracking)
+    run-product.sh    # Full pipeline: PRD → design → features → PRs
+    swarm.sh          # Run a single feature swarm
+    prd-extract.sh    # Extract features from PRD
+    prd-swarm.sh      # Run swarm for all extracted features (sequential or parallel)
+    cost-report.sh    # Generate token usage and cost report from logs
 ```
 
 ## Configuration
@@ -97,6 +109,13 @@ MAX_TURNS=25
 
 # Auto-pause on rate limit, retry after this many seconds (default: 600 = 10 min)
 RATE_LIMIT_WAIT=600
+
+# Max parallel feature swarms (default: 1 = sequential)
+# Higher values use git worktrees for concurrent execution
+MAX_PARALLEL=1
+
+# Enable PR review agent before commit (default: false)
+ENABLE_REVIEW=false
 ```
 
 ## Scripts
@@ -104,10 +123,11 @@ RATE_LIMIT_WAIT=600
 | Script | What it does |
 |---|---|
 | `run-product.sh` | Full pipeline: extract features, run design phase, run all feature swarms |
-| `swarm.sh "<task>"` | Single feature swarm: design → architect → build → test → debug → PR |
+| `swarm.sh "<task>"` | Single feature swarm: design → architect → build → test → debug → review → PR |
 | `swarm.sh --skip-design "<task>"` | Single feature swarm without design phase (used by run-product.sh) |
 | `prd-extract.sh` | Extract features from PRD into individual files |
-| `prd-swarm.sh` | Run swarm for each extracted feature file |
+| `prd-swarm.sh` | Run swarm for all extracted features (sequential or parallel) |
+| `cost-report.sh [path]` | Generate token usage and cost report from a pipeline run |
 
 ## Agents
 
@@ -123,6 +143,7 @@ RATE_LIMIT_WAIT=600
 | frontend | Implements UI and API integration |
 | tester | Writes and runs tests |
 | debugger | Fixes failing tests (up to MAX_RETRIES) |
+| reviewer | Reviews diff before PR creation (optional, ENABLE_REVIEW=true) |
 | versioncontroller | Manages git commits and PRs |
 
 All agents read the project's `CLAUDE.md` for conventions and the generated specs in `ricky/prd/specs/` for architectural context.

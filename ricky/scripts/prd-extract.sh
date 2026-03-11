@@ -22,7 +22,7 @@ DESIGN_MODEL="${DESIGN_MODEL:-claude-sonnet-4-6}"
 MAX_TURNS="${MAX_TURNS:-25}"
 RATE_LIMIT_WAIT="${RATE_LIMIT_WAIT:-600}"
 
-# Source shared functions (rate-limit retry, etc.)
+# Source shared functions (rate-limit retry, logging, etc.)
 source "$RICK_DIR/scripts/lib.sh"
 
 command -v claude >/dev/null || { echo "Error: claude CLI not found" >&2; exit 1; }
@@ -40,6 +40,13 @@ if [[ "$MAX_TURNS" -gt 0 ]]; then
   TURNS_FLAG="--max-turns $MAX_TURNS"
 fi
 
+# Set up logging for product-manager agent
+export RICKY_FEATURE_SLUG="extract"
+local_log=$(_agent_log_path "product-manager")
+if [[ -n "$local_log" ]]; then
+  export RICKY_AGENT_LOG="$local_log"
+fi
+
 RAW=$(run_claude \
   --system-prompt "$(cat "$RICK_DIR/agents/product-manager.md")" \
   --print \
@@ -49,6 +56,8 @@ RAW=$(run_claude \
   "Read the following PRD and extract features.
 
 $(cat "$PRD")")
+
+unset RICKY_AGENT_LOG
 
 # Split on ---FEATURE--- delimiter and write individual files
 echo "$RAW" | awk -v dir="$FEATURES_DIR" '
