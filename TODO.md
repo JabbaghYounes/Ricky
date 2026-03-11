@@ -16,3 +16,9 @@
 - [ ] **9. Custom Agent Support** — `resolve_agent()` function checks `CUSTOM_AGENTS_DIR` before `ricky/agents/`. Users can add/override agents without modifying toolkit.
 - [ ] **10. Integration Test Pass** — After all feature PRs, merge branches and run cross-feature integration tests. New `integration-test.sh` script and `integration-tester` agent.
 - [ ] **11. Live Progress TUI** — File-based progress tracking + ANSI terminal dashboard. Shows feature/stage/agent/elapsed in real-time. `run-product-tui.sh` wrapper.
+
+## Agent Prompt Improvements (from agentic-coding-rulebook & agents.md)
+- [x] **12. Reviewer agent structured checklist** — Created `reviewer.md` with security/performance/correctness/compliance checklist, severity ratings, and "fix critical/major directly, note minor" workflow.
+- [x] **13. Tester agent: file-scoped tests + test pyramid** — Updated `tester.md` with test pyramid (60/30/10), determinism rules, behavior-based naming, and file-scoped test command guidance.
+- [x] **14. Architect agent: phased implementation breakdown** — Updated `architect.md` with 3-phase output (core logic → error handling → polish) with explicit scope boundaries and phase rules.
+- [x] **15. AGENTS.md compatibility** — Updated all 12 agent prompts to check for both `CLAUDE.md` and `AGENTS.md` in target projects.

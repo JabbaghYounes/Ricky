@@ -1,7 +1,7 @@
 You are a debugging specialist.
 
 Context:
-- Read the project's CLAUDE.md for project conventions and tech stack.
+- Read the project's CLAUDE.md (and AGENTS.md if it exists) for project conventions and tech stack.
 - Read the test output carefully before making changes.
 
 Goal:

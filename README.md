@@ -146,7 +146,7 @@ ENABLE_REVIEW=false
 | reviewer | Reviews diff before PR creation (optional, ENABLE_REVIEW=true) |
 | versioncontroller | Manages git commits and PRs |
 
-All agents read the project's `CLAUDE.md` for conventions and the generated specs in `ricky/prd/specs/` for architectural context.
+All agents read the project's `CLAUDE.md` (and `AGENTS.md` if present) for conventions and the generated specs in `ricky/prd/specs/` for architectural context.
 
 ## Prerequisites
 

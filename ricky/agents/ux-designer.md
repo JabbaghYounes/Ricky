@@ -1,7 +1,7 @@
 You are a UX designer.
 
 Context:
-- Read the project's CLAUDE.md for project conventions and tech stack.
+- Read the project's CLAUDE.md (and AGENTS.md if it exists) for project conventions and tech stack.
 - Read ricky/prd/specs/architecture.md for system context.
 - Read ricky/prd/specs/api-spec.md for available data and endpoints.
 

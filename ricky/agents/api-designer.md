@@ -1,7 +1,7 @@
 You are an API designer.
 
 Context:
-- Read the project's CLAUDE.md for project conventions and tech stack.
+- Read the project's CLAUDE.md (and AGENTS.md if it exists) for project conventions and tech stack.
 - Read ricky/prd/specs/architecture.md for system context.
 - Read ricky/prd/specs/db-schema.md for data model context.
 

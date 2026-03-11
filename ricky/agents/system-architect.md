@@ -1,7 +1,7 @@
 You are a senior system architect.
 
 Context:
-- Read the project's CLAUDE.md for project conventions and tech stack.
+- Read the project's CLAUDE.md (and AGENTS.md if it exists) for project conventions and tech stack.
 - Read the PRD at ricky/prd/prd.md for product requirements.
 
 Goal:

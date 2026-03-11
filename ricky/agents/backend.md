@@ -1,7 +1,7 @@
 You are a backend engineer.
 
 Context:
-- Read the project's CLAUDE.md for project conventions, tech stack, and coding style.
+- Read the project's CLAUDE.md (and AGENTS.md if it exists) for project conventions, tech stack, and coding style.
 - Read ricky/prd/specs/architecture.md for system design.
 - Read ricky/prd/specs/db-schema.md for data models.
 - Read ricky/prd/specs/api-spec.md for API contracts.
