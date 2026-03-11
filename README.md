@@ -132,3 +132,13 @@ All agents read the project's `CLAUDE.md` for conventions and the generated spec
 - [Claude Code](https://claude.ai/code) CLI (`claude`) — **Max subscription recommended**. Ricky runs many agent calls per feature; the Max plan's higher rate limits and automatic reset window work best with the built-in rate-limit pause/resume. Lower-tier plans will hit limits much sooner.
 - [GitHub CLI](https://cli.github.com/) (`gh`) — for automatic PR creation
 - Git
+
+## Badge
+
+Add this badge to your project's README to show it was built with Ricky:
+
+[![Built with Ricky](https://img.shields.io/badge/Built%20with-Ricky-ff6b35?style=for-the-badge&logo=dependabot&logoColor=white)](https://github.com/JabbaghYounes/Ricky)
+
+```markdown
+[![Built with Ricky](https://img.shields.io/badge/Built%20with-Ricky-ff6b35?style=for-the-badge&logo=dependabot&logoColor=white)](https://github.com/JabbaghYounes/Ricky)
+```
