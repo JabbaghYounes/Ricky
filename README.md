@@ -129,6 +129,6 @@ All agents read the project's `CLAUDE.md` for conventions and the generated spec
 
 ## Prerequisites
 
-- [Claude Code](https://claude.ai/code) CLI (`claude`)
+- [Claude Code](https://claude.ai/code) CLI (`claude`) — **Max subscription recommended**. Ricky runs many agent calls per feature; the Max plan's higher rate limits and automatic reset window work best with the built-in rate-limit pause/resume. Lower-tier plans will hit limits much sooner.
 - [GitHub CLI](https://cli.github.com/) (`gh`) — for automatic PR creation
 - Git
