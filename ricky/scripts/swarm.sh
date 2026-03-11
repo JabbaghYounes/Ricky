@@ -18,6 +18,10 @@ CLAUDE_PERMISSIONS="${CLAUDE_PERMISSIONS:---dangerously-skip-permissions}"
 DESIGN_MODEL="${DESIGN_MODEL:-claude-sonnet-4-6}"
 IMPL_MODEL="${IMPL_MODEL:-claude-sonnet-4-6}"
 MAX_TURNS="${MAX_TURNS:-25}"
+RATE_LIMIT_WAIT="${RATE_LIMIT_WAIT:-600}"
+
+# Source shared functions (rate-limit retry, etc.)
+source "$RICK_DIR/scripts/lib.sh"
 
 # Parse flags
 SKIP_DESIGN=false
@@ -66,7 +70,7 @@ run_agent() {
   local PROMPT=$2
   local MODEL=${3:-$IMPL_MODEL}
   echo "--- Running agent: $AGENT (model: $MODEL) ---" >&2
-  claude \
+  run_claude \
     --system-prompt "$(cat "$RICK_DIR/agents/$AGENT.md")" \
     $(claude_flags "$MODEL") \
     "$PROMPT"

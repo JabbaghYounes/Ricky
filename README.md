@@ -93,6 +93,9 @@ IMPL_MODEL="claude-sonnet-4-6"
 
 # Max tool-use turns per agent (limits token consumption, 0 = unlimited)
 MAX_TURNS=25
+
+# Auto-pause on rate limit, retry after this many seconds (default: 600 = 10 min)
+RATE_LIMIT_WAIT=600
 ```
 
 ## Scripts

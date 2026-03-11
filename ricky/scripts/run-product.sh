@@ -12,6 +12,10 @@ DESIGN_AGENTS="${DESIGN_AGENTS:-system-architect db-designer api-designer ux-des
 CLAUDE_PERMISSIONS="${CLAUDE_PERMISSIONS:---dangerously-skip-permissions}"
 DESIGN_MODEL="${DESIGN_MODEL:-claude-sonnet-4-6}"
 MAX_TURNS="${MAX_TURNS:-25}"
+RATE_LIMIT_WAIT="${RATE_LIMIT_WAIT:-600}"
+
+# Source shared functions (rate-limit retry, etc.)
+source "$RICK_DIR/scripts/lib.sh"
 
 # Map design agent names to spec filenames
 spec_filename() {
@@ -57,7 +61,7 @@ if [[ "$DESIGN_AGENTS" != "none" ]]; then
       if [[ "$MAX_TURNS" -gt 0 ]]; then
         TURNS_FLAG="--max-turns $MAX_TURNS"
       fi
-      claude \
+      run_claude \
         --system-prompt "$(cat "$RICK_DIR/agents/$AGENT.md")" \
         --print \
         $CLAUDE_PERMISSIONS \
