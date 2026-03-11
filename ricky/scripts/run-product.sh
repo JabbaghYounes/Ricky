@@ -13,9 +13,19 @@ CLAUDE_PERMISSIONS="${CLAUDE_PERMISSIONS:---dangerously-skip-permissions}"
 DESIGN_MODEL="${DESIGN_MODEL:-claude-sonnet-4-6}"
 MAX_TURNS="${MAX_TURNS:-25}"
 RATE_LIMIT_WAIT="${RATE_LIMIT_WAIT:-600}"
+ENABLE_INTEGRATION_TEST="${ENABLE_INTEGRATION_TEST:-false}"
 
 # Source shared functions (rate-limit retry, logging, etc.)
 source "$RICK_DIR/scripts/lib.sh"
+
+# Parse flags
+INCREMENTAL=false
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --incremental) INCREMENTAL=true; shift ;;
+    *) break ;;
+  esac
+done
 
 # Initialize logging and cost tracking for this pipeline run
 init_run_log
@@ -47,10 +57,26 @@ echo "=========================================="
 # Step 1: Extract features from PRD
 echo ""
 echo "--- Step 1: Extracting features from PRD ---"
-"$RICK_DIR/scripts/prd-extract.sh"
+if [[ "$INCREMENTAL" == true ]]; then
+  "$RICK_DIR/scripts/prd-extract.sh" --incremental
+else
+  "$RICK_DIR/scripts/prd-extract.sh"
+fi
 
 # Step 2: Product-level design (runs once, not per-feature)
-if [[ "$DESIGN_AGENTS" != "none" ]]; then
+SKIP_DESIGN=false
+if [[ "$DESIGN_AGENTS" == "none" ]]; then
+  SKIP_DESIGN=true
+elif [[ "$INCREMENTAL" == true ]]; then
+  SPECS_DIR="$RICK_DIR/prd/specs"
+  if [[ -d "$SPECS_DIR" ]] && ls "$SPECS_DIR"/*.md >/dev/null 2>&1; then
+    SKIP_DESIGN=true
+    echo ""
+    echo "--- Step 2: Skipping design (specs already exist, --incremental) ---"
+  fi
+fi
+
+if [[ "$SKIP_DESIGN" == false ]]; then
   echo ""
   echo "--- Step 2: Product-level design ---"
   cd "$PROJECT_ROOT"
@@ -98,6 +124,16 @@ fi
 echo ""
 echo "--- Step 3: Running feature swarms ---"
 "$RICK_DIR/scripts/prd-swarm.sh"
+
+# Step 4: Integration test pass (optional)
+if [[ "$ENABLE_INTEGRATION_TEST" == "true" ]]; then
+  echo ""
+  echo "--- Step 4: Integration test pass ---"
+  "$RICK_DIR/scripts/integration-test.sh" || {
+    echo "WARNING: Integration tests failed. Feature PRs were still created." >&2
+    notify "failure" "Pipeline completed but integration tests failed."
+  }
+fi
 
 echo ""
 echo "=========================================="

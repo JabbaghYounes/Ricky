@@ -24,6 +24,12 @@ nvim ricky/prd/prd.md
 
 # 4. Run the full pipeline
 ricky/scripts/run-product.sh
+
+# Or run with live TUI dashboard
+ricky/scripts/run-product-tui.sh
+
+# Or add features incrementally (skips existing features and design specs)
+ricky/scripts/run-product.sh --incremental
 ```
 
 ## How It Works
@@ -52,6 +58,9 @@ The design phase runs once for the whole product. Each feature then gets its own
 - **Feature dependency ordering** — Features with `Depends on:` lines are sorted via `tsort` so foundations build first
 - **Notifications** — Slack/Discord webhook alerts on feature complete/failure. Set `NOTIFY_WEBHOOK` to enable
 - **Custom agents** — Drop `.md` files in `CUSTOM_AGENTS_DIR` to add or override agents without modifying the toolkit
+- **Incremental PRDs** — `--incremental` flag skips already-extracted features and reuses existing design specs
+- **Integration test pass** — Optional post-pipeline stage that merges all feature branches and runs cross-feature integration tests (`ENABLE_INTEGRATION_TEST=true`)
+- **Live progress TUI** — Real-time ANSI terminal dashboard showing per-feature, per-stage progress. Run with `run-product-tui.sh` or attach to a running pipeline with `tui.sh`
 
 ## Structure
 
@@ -74,6 +83,9 @@ ricky/
     prd-extract.sh    # Extract features from PRD
     prd-swarm.sh      # Run swarm for all extracted features (sequential or parallel)
     cost-report.sh    # Generate token usage and cost report from logs
+    integration-test.sh # Cross-feature integration test pass
+    tui.sh            # Live ANSI progress dashboard
+    run-product-tui.sh # Full pipeline with integrated TUI dashboard
 ```
 
 ## Configuration
@@ -119,6 +131,9 @@ MAX_PARALLEL=1
 
 # Enable PR review agent before commit (default: false)
 ENABLE_REVIEW=false
+
+# Enable integration test pass after all feature swarms (default: false)
+ENABLE_INTEGRATION_TEST=false
 ```
 
 ## Scripts
@@ -131,6 +146,9 @@ ENABLE_REVIEW=false
 | `prd-extract.sh` | Extract features from PRD into individual files |
 | `prd-swarm.sh` | Run swarm for all extracted features (sequential or parallel) |
 | `cost-report.sh [path]` | Generate token usage and cost report from a pipeline run |
+| `integration-test.sh` | Merge completed feature branches and run cross-feature tests |
+| `tui.sh [interval] [pid]` | Live progress dashboard (attach to running pipeline) |
+| `run-product-tui.sh` | Full pipeline with live TUI dashboard |
 
 ## Agents
 
@@ -147,6 +165,7 @@ ENABLE_REVIEW=false
 | tester | Writes and runs tests |
 | debugger | Fixes failing tests (up to MAX_RETRIES) |
 | reviewer | Reviews diff before PR creation (optional, ENABLE_REVIEW=true) |
+| integration-tester | Fixes cross-feature integration issues (optional, ENABLE_INTEGRATION_TEST=true) |
 | versioncontroller | Manages git commits and PRs |
 
 All agents read the project's `CLAUDE.md` (and `AGENTS.md` if present) for conventions and the generated specs in `ricky/prd/specs/` for architectural context.
