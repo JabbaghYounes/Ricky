@@ -54,6 +54,7 @@ ricky/
     specs/          # Auto-generated specs (design + per-feature architecture/plan)
     status.json     # Feature progress tracking (supports resume on re-run)
   scripts/
+    lib.sh          # Shared functions (rate-limit retry, etc.)
     run-product.sh  # Full pipeline: PRD → design → features → PRs
     swarm.sh        # Run a single feature swarm
     prd-extract.sh  # Extract features from PRD
@@ -115,7 +116,6 @@ RATE_LIMIT_WAIT=600
 | product-manager | Analyzes PRD, extracts feature list |
 | system-architect | Designs system-level architecture from PRD |
 | architect | Designs feature-level implementation and task breakdown |
-| roadmap | Breaks PRD into milestones |
 | db-designer | Generates database schema |
 | api-designer | Defines REST/GraphQL API spec |
 | ux-designer | Defines UI flows and components |
