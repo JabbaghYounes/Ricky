@@ -124,6 +124,87 @@ _log_token_usage() {
   echo "$agent,$feature,$input_tokens,$output_tokens,$model,$ts" >> "$RICKY_COST_LOG"
 }
 
+# --- Custom Agent Resolution ---
+
+# Resolve an agent name to its .md file path.
+# Checks: CUSTOM_AGENTS_DIR first, then RICK_DIR/agents/, then absolute path.
+# Usage: resolve_agent <agent-name>
+# Returns: path to the .md file, or exits 1 if not found.
+resolve_agent() {
+  local agent_name=$1
+  local custom_dir="${CUSTOM_AGENTS_DIR:-${RICK_DIR:-}/custom-agents}"
+
+  # Check custom directory first (user overrides)
+  if [[ -n "$custom_dir" ]] && [[ -f "$custom_dir/$agent_name.md" ]]; then
+    echo "$custom_dir/$agent_name.md"
+    return 0
+  fi
+  # Check built-in agents
+  if [[ -f "${RICK_DIR:-}/agents/$agent_name.md" ]]; then
+    echo "${RICK_DIR:-}/agents/$agent_name.md"
+    return 0
+  fi
+  # Check as absolute/relative path
+  if [[ -f "$agent_name" ]]; then
+    echo "$agent_name"
+    return 0
+  fi
+  # Not found
+  return 1
+}
+
+# --- Notifications ---
+
+# Send a notification via webhook (Slack or Discord).
+# Usage: notify <status> <message>
+# Status: "success" or "failure"
+# Requires NOTIFY_WEBHOOK to be set. Does nothing if empty.
+notify() {
+  local status=$1
+  local message=$2
+
+  [[ -n "${NOTIFY_WEBHOOK:-}" ]] || return 0
+  command -v curl >/dev/null || { echo "Warning: curl not found, skipping notification" >&2; return 0; }
+
+  # Filter by NOTIFY_ON setting
+  local notify_on="${NOTIFY_ON:-all}"
+  case "$notify_on" in
+    failure)    [[ "$status" != "failure" ]] && return 0 ;;
+    completion) [[ "$status" != "success" ]] && return 0 ;;
+    all)        ;;
+  esac
+
+  # Auto-detect provider from URL
+  local provider="${NOTIFY_PROVIDER:-auto}"
+  if [[ "$provider" == "auto" ]]; then
+    case "$NOTIFY_WEBHOOK" in
+      *hooks.slack.com*)   provider="slack" ;;
+      *discord.com/api*)   provider="discord" ;;
+      *)                   provider="slack" ;;
+    esac
+  fi
+
+  # Format payload
+  local payload
+  case "$provider" in
+    slack)
+      local emoji
+      if [[ "$status" == "success" ]]; then emoji=":white_check_mark:"; else emoji=":x:"; fi
+      payload="{\"text\": \"${emoji} Ricky: ${message}\"}"
+      ;;
+    discord)
+      local color
+      if [[ "$status" == "success" ]]; then color="3066993"; else color="15158332"; fi
+      # Escape double quotes in message for JSON
+      local safe_msg="${message//\"/\\\"}"
+      payload="{\"embeds\": [{\"title\": \"Ricky Pipeline\", \"description\": \"${safe_msg}\", \"color\": ${color}}]}"
+      ;;
+  esac
+
+  # Fire and forget — never block the pipeline on notification failure
+  curl -s -X POST -H "Content-Type: application/json" -d "$payload" "$NOTIFY_WEBHOOK" >/dev/null 2>&1 &
+}
+
 # --- Granular status tracking ---
 
 # Status directory: one file per feature with key=value pairs

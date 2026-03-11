@@ -60,7 +60,7 @@ if [[ "$DESIGN_AGENTS" != "none" ]]; then
   export RICKY_FEATURE_SLUG="design"
 
   for AGENT in $DESIGN_AGENTS; do
-    if [[ -f "$RICK_DIR/agents/$AGENT.md" ]]; then
+    if resolve_agent "$AGENT" >/dev/null 2>&1; then
       SPEC_FILE="$SPECS_DIR/$(spec_filename "$AGENT")"
       echo "Running design agent: $AGENT"
 
@@ -77,8 +77,9 @@ if [[ "$DESIGN_AGENTS" != "none" ]]; then
       export RICKY_AGENT_NAME="$AGENT"
       export RICKY_AGENT_MODEL="$DESIGN_MODEL"
 
+      AGENT_FILE=$(resolve_agent "$AGENT")
       run_claude \
-        --system-prompt "$(cat "$RICK_DIR/agents/$AGENT.md")" \
+        --system-prompt "$(cat "$AGENT_FILE")" \
         --print \
         $CLAUDE_PERMISSIONS \
         --model "$DESIGN_MODEL" \
@@ -109,3 +110,5 @@ if [[ -f "${RICKY_COST_LOG:-}" ]]; then
   echo ""
   "$RICK_DIR/scripts/cost-report.sh" "$RICKY_COST_LOG"
 fi
+
+notify "success" "Full product pipeline completed successfully."

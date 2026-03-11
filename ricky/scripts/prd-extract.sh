@@ -73,3 +73,23 @@ echo "$RAW" | awk -v dir="$FEATURES_DIR" '
 
 COUNT=$(find "$FEATURES_DIR" -name "*.md" 2>/dev/null | wc -l)
 echo "Extracted $COUNT feature(s) to $FEATURES_DIR/"
+
+# Extract dependency graph from feature files
+DEPS_FILE="$FEATURES_DIR/dependencies.txt"
+> "$DEPS_FILE"
+for FFILE in "$FEATURES_DIR"/*.md; do
+  [[ -f "$FFILE" ]] || continue
+  FSLUG="$(basename "$FFILE" .md)"
+  # Parse "Depends on: slug1, slug2" lines
+  DEPS=$(grep -i "^Depends on:" "$FFILE" 2>/dev/null | sed 's/^[Dd]epends on: *//' | tr ',' '\n' | tr -d ' ' || true)
+  for DEP in $DEPS; do
+    [[ -n "$DEP" ]] && echo "$DEP $FSLUG" >> "$DEPS_FILE"
+  done
+done
+
+if [[ -s "$DEPS_FILE" ]]; then
+  DEP_COUNT=$(wc -l < "$DEPS_FILE")
+  echo "Found $DEP_COUNT dependency edge(s) in $DEPS_FILE"
+else
+  echo "No feature dependencies found."
+fi

@@ -49,6 +49,9 @@ The design phase runs once for the whole product. Each feature then gets its own
 - **Cost/token tracking** — Token usage logged per agent call. Run `cost-report.sh` for a breakdown by agent, feature, and estimated cost
 - **Rate-limit auto-pause** — Detects API rate limits and auto-pauses/resumes. No manual intervention needed
 - **PR review agent** — Optional self-review stage catches issues before PR creation (`ENABLE_REVIEW=true`)
+- **Feature dependency ordering** — Features with `Depends on:` lines are sorted via `tsort` so foundations build first
+- **Notifications** — Slack/Discord webhook alerts on feature complete/failure. Set `NOTIFY_WEBHOOK` to enable
+- **Custom agents** — Drop `.md` files in `CUSTOM_AGENTS_DIR` to add or override agents without modifying the toolkit
 
 ## Structure
 

@@ -95,6 +95,14 @@ run_agent() {
   local AGENT=$1
   local PROMPT=$2
   local MODEL=${3:-$IMPL_MODEL}
+
+  # Resolve agent file (supports custom agents)
+  local AGENT_FILE
+  AGENT_FILE=$(resolve_agent "$AGENT") || {
+    echo "Warning: agent $AGENT not found, skipping" >&2
+    return 1
+  }
+
   echo "--- Running agent: $AGENT (model: $MODEL) ---" >&2
 
   # Set up logging
@@ -109,7 +117,7 @@ run_agent() {
   export RICKY_AGENT_MODEL="$MODEL"
 
   run_claude \
-    --system-prompt "$(cat "$RICK_DIR/agents/$AGENT.md")" \
+    --system-prompt "$(cat "$AGENT_FILE")" \
     $(claude_flags "$MODEL") \
     "$PROMPT"
 
@@ -166,7 +174,7 @@ run_stage_design() {
 
   echo "=== Design phase ==="
   for AGENT in $DESIGN_AGENTS; do
-    if [[ -f "$RICK_DIR/agents/$AGENT.md" ]]; then
+    if resolve_agent "$AGENT" >/dev/null 2>&1; then
       SPEC_FILE="$SPECS_DIR/$(spec_filename "$AGENT")"
       run_agent "$AGENT" "Design for: $TASK" "$DESIGN_MODEL" > "$SPEC_FILE"
       echo "Wrote spec: $SPEC_FILE"
@@ -210,7 +218,7 @@ $plan_context"
   echo "=== Implementation phase ==="
   IMPL_PIDS=()
   for AGENT in $IMPL_AGENTS; do
-    if [[ -f "$RICK_DIR/agents/$AGENT.md" ]]; then
+    if resolve_agent "$AGENT" >/dev/null 2>&1; then
       run_agent "$AGENT" "$impl_prompt" "$IMPL_MODEL" &
       IMPL_PIDS+=($!)
     else

@@ -25,12 +25,52 @@ if ! ls "$FEATURES_DIR"/*.md >/dev/null 2>&1; then
   exit 1
 fi
 
-# Collect feature names and load statuses from granular status files
-FEATURE_NAMES=()
+# Collect feature names
+ALL_FEATURE_NAMES=()
 for FEATURE in "$FEATURES_DIR"/*.md; do
+  [[ "$(basename "$FEATURE")" == "dependencies.txt" ]] && continue
   FNAME="$(basename "$FEATURE" .md)"
-  FEATURE_NAMES+=("$FNAME")
+  ALL_FEATURE_NAMES+=("$FNAME")
 done
+
+# Sort by dependency order if dependencies.txt exists
+DEPS_FILE="$FEATURES_DIR/dependencies.txt"
+FEATURE_NAMES=()
+
+if [[ -f "$DEPS_FILE" ]] && [[ -s "$DEPS_FILE" ]] && command -v tsort >/dev/null 2>&1; then
+  echo "Sorting features by dependency order..."
+  # Build input for tsort: include self-edges for features with no deps
+  TSORT_INPUT=$(mktemp "${TMPDIR:-/tmp}/ricky-tsort.XXXXXX")
+  cp "$DEPS_FILE" "$TSORT_INPUT"
+  for FNAME in "${ALL_FEATURE_NAMES[@]}"; do
+    if ! grep -q "$FNAME" "$TSORT_INPUT" 2>/dev/null; then
+      echo "$FNAME $FNAME" >> "$TSORT_INPUT"
+    fi
+  done
+
+  SORTED=$(tsort < "$TSORT_INPUT" 2>&1) || {
+    echo "WARNING: Circular dependency detected. Falling back to filesystem order." >&2
+    echo "$SORTED" >&2
+    SORTED=""
+  }
+  rm -f "$TSORT_INPUT"
+
+  if [[ -n "$SORTED" ]]; then
+    # tsort output is one name per line in dependency order
+    while IFS= read -r FNAME; do
+      # Only include names that are actual feature files
+      if [[ -f "$FEATURES_DIR/$FNAME.md" ]]; then
+        FEATURE_NAMES+=("$FNAME")
+      fi
+    done <<< "$SORTED"
+    echo "Feature order: ${FEATURE_NAMES[*]}"
+  fi
+fi
+
+# Fallback to filesystem order if sorting didn't produce results
+if [[ ${#FEATURE_NAMES[@]} -eq 0 ]]; then
+  FEATURE_NAMES=("${ALL_FEATURE_NAMES[@]}")
+fi
 
 # Generate initial status.json for backward compatibility
 generate_status_json "$STATUS_FILE"
@@ -61,9 +101,11 @@ if [[ "$MAX_PARALLEL" -le 1 ]]; then
 
     if "$RICK_DIR/scripts/swarm.sh" --skip-design --feature-slug "$FNAME" $BRANCH_FLAG "$(cat "$FEATURE")"; then
       echo "=== Completed: $FNAME ==="
+      notify "success" "Feature '$FNAME' completed successfully."
     else
       HAS_FAILURE=true
       echo "=== Failed: $FNAME ===" >&2
+      notify "failure" "Feature '$FNAME' failed."
     fi
     generate_status_json "$STATUS_FILE"
   done
@@ -110,9 +152,11 @@ else
 
       if [[ "$feat_status" == "complete" ]]; then
         echo "=== Completed: $fname ==="
+        notify "success" "Feature '$fname' completed successfully."
       else
         HAS_FAILURE=true
         echo "=== Failed: $fname ===" >&2
+        notify "failure" "Feature '$fname' failed."
       fi
 
       # Cleanup worktree
@@ -202,5 +246,8 @@ generate_status_json "$STATUS_FILE"
 
 if [[ "$HAS_FAILURE" == true ]]; then
   echo "ERROR: One or more features failed. See $STATUS_FILE for details." >&2
+  notify "failure" "Pipeline completed with failures. See status.json for details."
   exit 1
+else
+  notify "success" "All features completed successfully."
 fi
